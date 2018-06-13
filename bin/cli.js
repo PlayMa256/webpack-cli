@@ -29,7 +29,7 @@ let configFiles = [];
 
 yargs.parse(process.argv.slice(2), (err, argv, output) => {
 	isWatchMode = argv.watch;
-	configFiles = Array.isArray(argv.config) ? argv.config : [argv.config];
+	configFiles = require("./utils")(argv);
 	configFiles = configFiles.map((file) => path.resolve(file));
 });
 

@@ -43,61 +43,39 @@ module.exports = function(...args) {
 
 	let configFileLoaded = false;
 	let configFiles = [];
-	const extensions = Object.keys(interpret.extensions).sort(function(a, b) {
+
+	const extensions = Object.keys(interpret.extensions).sort((a, b) => {
 		return a === ".js" ? -1 : b === ".js" ? 1 : a.length - b.length;
 	});
-	const defaultConfigFiles = ["webpack.config", "webpackfile"]
-		.map(function(filename) {
-			return extensions.map(function(ext) {
-				return {
-					path: path.resolve(filename + ext),
-					ext: ext
-				};
-			});
-		})
-		.reduce(function(a, i) {
-			return a.concat(i);
-		}, []);
 
 	let i;
-	if (argv.config) {
-		const getConfigExtension = function getConfigExtension(configPath) {
-			for (i = extensions.length - 1; i >= 0; i--) {
-				const tmpExt = extensions[i];
-				if (
-					configPath.indexOf(tmpExt, configPath.length - tmpExt.length) > -1
-				) {
-					return tmpExt;
-				}
-			}
-			return path.extname(configPath);
-		};
 
-		const mapConfigArg = function mapConfigArg(configArg) {
-			const resolvedPath = path.resolve(configArg);
-			const extension = getConfigExtension(resolvedPath);
-			return {
-				path: resolvedPath,
-				ext: extension
-			};
-		};
-
-		const configArgList = Array.isArray(argv.config)
-			? argv.config
-			: [argv.config];
-		configFiles = configArgList.map(mapConfigArg);
-	} else {
-		for (i = 0; i < defaultConfigFiles.length; i++) {
-			const webpackConfig = defaultConfigFiles[i].path;
-			if (fs.existsSync(webpackConfig)) {
-				configFiles.push({
-					path: webpackConfig,
-					ext: defaultConfigFiles[i].ext
-				});
-				break;
+	const getConfigExtension = function getConfigExtension(configPath) {
+		for (i = extensions.length - 1; i >= 0; i--) {
+			const tmpExt = extensions[i];
+			if (
+				configPath.indexOf(tmpExt, configPath.length - tmpExt.length) > -1
+			) {
+				return tmpExt;
 			}
 		}
-	}
+		return path.extname(configPath);
+	};
+
+	const configFilesUtils = require("./utils");
+
+	const mapConfigArg = function mapConfigArg(configArg) {
+		const resolvedPath = path.resolve(configArg);
+		const extension = getConfigExtension(resolvedPath);
+		return {
+			path: resolvedPath,
+			ext: extension
+		};
+	};
+
+	const configArgList = configFilesUtils(argv);
+	configFiles = configArgList.map(mapConfigArg);
+
 	if (configFiles.length > 0) {
 		const registerCompiler = function registerCompiler(moduleDescriptor) {
 			if (moduleDescriptor) {
