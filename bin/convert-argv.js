@@ -62,7 +62,7 @@ module.exports = function(...args) {
 		return path.extname(configPath);
 	};
 
-	const configFilesUtils = require("./utils");
+	const getConfigFiles = require("./getConfigFiles");
 
 	const mapConfigArg = function mapConfigArg(configArg) {
 		const resolvedPath = path.resolve(configArg);
@@ -73,7 +73,7 @@ module.exports = function(...args) {
 		};
 	};
 
-	const configArgList = configFilesUtils(argv);
+	const configArgList = getConfigFiles(argv);
 	configFiles = configArgList.map(mapConfigArg);
 
 	if (configFiles.length > 0) {
